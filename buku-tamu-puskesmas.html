@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Tamu Digital - Puskesmas Mananggu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .signature-canvas {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            cursor: crosshair;
+        }
+        .star-rating svg {
+            width: 2.5rem;
+            height: 2.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+        .loader {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased text-slate-700 bg-gradient-to-br from-green-50 to-emerald-100">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Buku Tamu Digital</h1>
+            <p class="mt-2 text-lg text-green-800">Puskesmas Mananggu Kec. Mananggu Kab. Boalemo</p>
+            <p class="mt-1 text-base text-slate-600">Alamat : Jln Trans Sulawesi Desa Kaaruyan Kec. Mananggu Kab. Boalemo</p>
+        </header>
+
+        <!-- Form Card -->
+        <main class="max-w-4xl mx-auto bg-white p-6 sm:p-8 md:p-10 rounded-2xl shadow-lg">
+            <form id="guestBookForm" class="space-y-6">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-slate-600 mb-1">Nama Lengkap</label>
+                        <input type="text" id="name" name="name" required placeholder="Masukkan nama Anda" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                    </div>
+                    <div>
+                        <label for="nip" class="block text-sm font-medium text-slate-600 mb-1">NIP (Opsional)</label>
+                        <input type="text" id="nip" name="nip" placeholder="Masukkan NIP jika ada" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="purpose" class="block text-sm font-medium text-slate-600 mb-1">Tujuan / Maksud</label>
+                    <textarea id="purpose" name="purpose" rows="3" required placeholder="Jelaskan tujuan kedatangan Anda" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="impression" class="block text-sm font-medium text-slate-600 mb-1">Kesan</label>
+                        <textarea id="impression" name="impression" rows="3" placeholder="Bagaimana kesan Anda terhadap pelayanan kami?" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"></textarea>
+                    </div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-slate-600 mb-1">Pesan</label>
+                        <textarea id="message" name="message" rows="3" placeholder="Apa pesan atau saran Anda untuk kami?" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"></textarea>
+                    </div>
+                </div>
+
+                <!-- Rating Section -->
+                <div class="text-center border-t border-slate-200 pt-6">
+                    <label class="block text-base font-semibold text-slate-700 mb-3">Berikan Penilaian Anda</label>
+                    <div id="star-rating" class="flex justify-center items-center star-rating space-x-2">
+                        <!-- Stars will be injected by JS -->
+                    </div>
+                    <input type="hidden" id="rating" name="rating" value="0">
+                </div>
+
+                <!-- Signature Section -->
+                <div class="border-t border-slate-200 pt-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-base font-semibold text-slate-700">Tanda Tangan</label>
+                        <button type="button" id="clear-signature" class="text-sm font-medium text-emerald-600 hover:text-emerald-800 transition">Hapus Tanda Tangan</button>
+                    </div>
+                    <canvas id="signature-canvas" class="signature-canvas w-full h-48 bg-slate-50"></canvas>
+                    <p id="signature-error" class="text-red-500 text-sm mt-1 hidden">Tanda tangan tidak boleh kosong.</p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" id="submit-button" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-300 ease-in-out flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                        <span id="submit-button-text">Kirim Data</span>
+                        <div id="submit-loader" class="loader hidden"></div>
+                    </button>
+                </div>
+
+            </form>
+            
+            <!-- Message Area -->
+            <div id="response-message" class="hidden mt-6 p-4 rounded-lg text-center"></div>
+        </main>
+    </div>
+
+    <!-- Signature Pad Library -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
+    <script>
+        // ==========================================================================================
+        // PENTING: Ganti URL di bawah ini dengan URL Aplikasi Web dari Google Apps Script Anda.
+        // Lihat file petunjuk.md untuk cara mendapatkannya.
+        // ==========================================================================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_FPDKt_MUIn3qCxM-m9IFyDAbt-tg9ebxQ6DPlYskmbv6a85YkXnQ2z8JdP_4otZg4g/exec';
+        // ==========================================================================================
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('guestBookForm');
+            const canvas = document.getElementById('signature-canvas');
+            const clearButton = document.getElementById('clear-signature');
+            const starRatingContainer = document.getElementById('star-rating');
+            const ratingInput = document.getElementById('rating');
+            const signatureError = document.getElementById('signature-error');
+            const responseMessage = document.getElementById('response-message');
+            const submitButton = document.getElementById('submit-button');
+            const submitButtonText = document.getElementById('submit-button-text');
+            const submitLoader = document.getElementById('submit-loader');
+
+            const signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(248, 250, 252)'
+            });
+
+            // Handle canvas resize
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear();
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+
+            // Clear signature
+            clearButton.addEventListener('click', () => {
+                signaturePad.clear();
+            });
+
+            // Star Rating Logic
+            let currentRating = 0;
+            const maxStars = 5;
+            const starIcon = (filled = false) => `
+                <svg class="w-8 h-8 ${filled ? 'text-amber-400' : 'text-slate-300'}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                </svg>`;
+
+            function renderStars(rating = 0) {
+                starRatingContainer.innerHTML = '';
+                for (let i = 1; i <= maxStars; i++) {
+                    const starWrapper = document.createElement('div');
+                    starWrapper.dataset.value = i;
+                    starWrapper.innerHTML = starIcon(i <= rating);
+                    starRatingContainer.appendChild(starWrapper);
+                }
+            }
+            
+            starRatingContainer.addEventListener('click', e => {
+                const star = e.target.closest('div[data-value]');
+                if (star) {
+                    currentRating = parseInt(star.dataset.value, 10);
+                    ratingInput.value = currentRating;
+                    renderStars(currentRating);
+                }
+            });
+
+            starRatingContainer.addEventListener('mouseover', e => {
+                const star = e.target.closest('div[data-value]');
+                if (star) {
+                    renderStars(parseInt(star.dataset.value, 10));
+                }
+            });
+
+            starRatingContainer.addEventListener('mouseout', () => {
+                renderStars(currentRating);
+            });
+            
+            renderStars();
+
+            // Form submission
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                signatureError.classList.add('hidden');
+                canvas.style.borderColor = '#cbd5e1';
+
+                if (signaturePad.isEmpty()) {
+                    signatureError.classList.remove('hidden');
+                    canvas.style.borderColor = '#ef4444';
+                    return;
+                }
+                
+                if (SCRIPT_URL === 'PASTE_URL_APLIKASI_WEB_ANDA_DI_SINI') {
+                    showResponseMessage('Error: URL Aplikasi Web belum diatur di dalam file HTML.', true);
+                    return;
+                }
+
+                setLoading(true);
+
+                // Menghitung skor rating
+                const starRating = parseInt(ratingInput.value, 10);
+                const ratingScore = starRating * 20;
+
+                const submissionData = {
+                    name: form.name.value,
+                    nip: form.nip.value || '-',
+                    purpose: form.purpose.value,
+                    impression: form.impression.value || '-',
+                    message: form.message.value || '-',
+                    rating: ratingScore, // Mengirim skor yang sudah dihitung
+                    signature: signaturePad.toDataURL('image/png')
+                };
+
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Diperlukan untuk Apps Script
+                    cache: 'no-cache',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(submissionData),
+                })
+                .then(response => {
+                     // Karena mode 'no-cors', kita tidak bisa membaca response.
+                     // Jadi kita asumsikan berhasil dan mereset form.
+                     showResponseMessage('Terima kasih! Data Anda telah berhasil disimpan.', false);
+                     form.reset();
+                     signaturePad.clear();
+                     currentRating = 0;
+                     ratingInput.value = 0;
+                     renderStars();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showResponseMessage('Terjadi kesalahan saat mengirim data. Silakan coba lagi.', true);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+            });
+
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    submitButton.disabled = true;
+                    submitButtonText.classList.add('hidden');
+                    submitLoader.classList.remove('hidden');
+                } else {
+                    submitButton.disabled = false;
+                    submitButtonText.classList.remove('hidden');
+                    submitLoader.classList.add('hidden');
+                }
+            }
+            
+            function showResponseMessage(message, isError = false) {
+                responseMessage.textContent = message;
+                responseMessage.className = 'hidden mt-6 p-4 rounded-lg text-center'; // Reset classes
+                if (isError) {
+                    responseMessage.classList.add('bg-red-100', 'border', 'border-red-300', 'text-red-800');
+                } else {
+                    responseMessage.classList.add('bg-green-100', 'border', 'border-green-300', 'text-green-800');
+                }
+                responseMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    responseMessage.classList.add('hidden');
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+</html>
+
